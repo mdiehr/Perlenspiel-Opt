@@ -1,0 +1,37 @@
+Modifications to version 2.3.11x by Mark Diehr on 5/15/2013
+	+ Better audio errors
+
+Modifications to version 2.3.11x by Mark Diehr on 4/25/2013
+	+ fixed BeadShow
+	+ More error checking when setting status text before gridsize
+
+Modifications to version 2.3.11x by Mark Diehr on 4/7/2013
+	+ Many speed improvements!
+	+ Beads now draw directly to the main context
+	+ Removed the off-screen canvas/context pool
+	+ Beads now remember if they are dirty or not
+	+ Drawing is batched and delayed until after any tick or user action
+	
+Modifications to version 2.3.10x by Mark Diehr on 4/5/2013
+	+ Web font is always off by default
+	+ Web font is only hosted online, not locally
+	+ PS.Sys(true) will turn on the web font
+
+Modifications to version 2.3.10x by Mark Diehr on 4/4/2013
+	+ Fixed call stack output
+	+ Write call stack to console as well
+
+Modifications to version 2.3.10x by Mark Diehr
+	+ Symbola font
+	+ Web font loader
+	+ Bead border width on a per-side basis
+	+ Disabled double-click-to-select on grid
+	+ SymbolaMS font (Better snowmen)
+	+ Better error checking when grid isn't initialized
+	+ Supports unicode characters outside the basic multilingual plane
+	+ Better font with sans-serif letters
+
+Modifications to version 2.3.9x by Mark Diehr
+	+ PS.GridSize optimization
+	+ Bead canvas cache
+	+ Call stack on error in debug log
