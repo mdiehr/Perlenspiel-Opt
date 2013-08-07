@@ -5,6 +5,9 @@ Perlenspiel is a scheme by Professor Moriarty (bmoriarty@wpi.edu).
 Perlenspiel is Copyright © 2009-13 Worcester Polytechnic Institute.
 This file is part of Perlenspiel.
 
+Modifications to version 2.3.12x by Mark Diehr on 8/07/2013
+	+ Syntax error notifications
+
 Modifications to version 2.3.12x by Mark Diehr on 7/29/2013
 	+ UTF8 Encoding
 
@@ -6112,54 +6115,82 @@ PS.LoadEngine = function ()
 
 	// Make sure all required game functions exist
 	
+	var hadError = false;
+	
 	if ( typeof PS.Init !== "function" )
 	{
 		PS.Init = null;
+		hadError = true;
 		PS.Oops(fn + "WARNING: PS.Init function undefined");
 	}
 
 	if ( typeof PS.Click !== "function" )
 	{
 		PS.Click = null;
+		hadError = true;
 		PS.Oops(fn + "WARNING: PS.Click function undefined");
 	}
 
 	if ( typeof PS.Release !== "function" )
 	{
 		PS.Release = null;
+		hadError = true;
 		PS.Oops(fn + "WARNING: PS.Release function undefined");
 	}
 
 	if ( typeof PS.Enter !== "function" )
 	{
 		PS.Enter = null;
+		hadError = true;
 		PS.Oops(fn + "WARNING: PS.Enter function undefined");
 	}
 
 	if ( typeof PS.Leave !== "function" )
 	{
 		PS.Leave = null;
+		hadError = true;
 		PS.Oops(fn + "WARNING: PS.Leave function undefined");
 	}
 
 	if ( typeof PS.KeyDown !== "function" )
 	{
 		PS.KeyDown = null;
+		hadError = true;
 		PS.Oops(fn + "WARNING: PS.KeyDown function undefined");
 	}
 
 	if ( typeof PS.KeyUp !== "function" )
 	{
 		PS.KeyUp = null;
+		hadError = true;
 		PS.Oops(fn + "WARNING: PS.KeyUp function undefined");
 	}
 
 	if ( typeof PS.Wheel !== "function" )
 	{
 		PS.Wheel = null;
+		hadError = true;
 		PS.Oops(fn + "WARNING: PS.Wheel function undefined");
 	}
 
+	if( hadError )
+	{
+		PS.Debug("\nIt looks like you might have a syntax error. To locate it, right-click in this box, and choose 'Inspect Element'. Then, click on the 'Console' tab.\n");
+		PS.Debug("\nLook at which line the error occurs on, and try to determine what went wrong.\n");
+		// Set status
+		var status = document.getElementById(PS.STS_ID);
+		status.value = "Syntax Error!";
+		// Red background
+		status.style.backgroundColor = "red";
+		document.body.style.backgroundColor = "red";
+		// Hide the grid
+		var canvas = document.getElementById(PS.CVS_ID);
+		canvas.style.height = "0px";
+		// Make debug monitor larger
+		var monitor = document.getElementById(PS.MON_ID);
+		monitor.rows = 16;
+	}
+	
     // Set up keyboard and mouse wheel events
 
     document.onkeydown = PS.SysKeyDown;
