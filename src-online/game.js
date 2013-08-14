@@ -1,9 +1,9 @@
-﻿//﻿///////////////////////////////////////////////////////////////////
+﻿/////////////////////////////////////////////////////////////////////
 // game.js for Perlenspiel 2.3.12
 // Modifications by Mark Diehr: mdiehr@fullsail.com
 
 // Please fill out these comments with the appropriate information.
-//  Title:	
+//   Title:	
 //  Author:	
 //    Date:	
 
