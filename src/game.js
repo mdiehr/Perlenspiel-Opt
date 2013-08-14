@@ -1,11 +1,11 @@
-﻿//﻿///////////////////////////////////////////////////////////////////
+﻿/////////////////////////////////////////////////////////////////////
 // game.js for Perlenspiel 2.3.12
 // Modifications by Mark Diehr: mdiehr@fullsail.com
 
 // Please fill out these comments with the appropriate information.
-//  Title:	
-//  Author:	
-//    Date:	
+//   Title: 
+//  Author: 
+//    Date: 
 
 // Perlenspiel is a scheme by Professor Moriarty (bmoriarty@wpi.edu).
 // Perlenspiel is Copyright © 2009-13 Worcester Polytechnic Institute.
