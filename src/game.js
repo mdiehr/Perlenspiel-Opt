@@ -2,23 +2,11 @@
 // game.js for Perlenspiel 2.3.12
 // Modifications by Mark Diehr: mdiehr@fullsail.com
 
-// Please fill out these comments with the appropriate information.
-//   Title: 
-//  Author: 
-//    Date: 
-
 // Perlenspiel is a scheme by Professor Moriarty (bmoriarty@wpi.edu).
 // Perlenspiel is Copyright © 2009-13 Worcester Polytechnic Institute.
 // This file is part of Perlenspiel.
 
 /////////////////////////////////////////////////////////////////////
-// Put your global variables after this line.
-
-
-/////////////////////////////////////////////////////////////////////
-// Put your function definitions after this line.
-
-
 // This is a template for creating new Perlenspiel games
 // All of the functions below MUST exist, or the engine will stop and complain!
 
