@@ -418,7 +418,7 @@ PS.ValidRGB = function ( rgb, fn )
 {
 	"use strict";
 
-	if ( typeof rgb !== "number" || rgb === NaN )
+	if ( typeof rgb !== "number" || isNaN(rgb) )
 	{
 		PS.OopsCallstack( fn + "rgb parameter not a number" );
 		return -1;
@@ -447,7 +447,7 @@ PS.UnmakeRGB = function ( rgb )
 
 	fn = "[PS.UnmakeRGB] ";
 
-	if ( typeof rgb !== "number" || rgb === NaN )
+	if ( typeof rgb !== "number" || isNaN(rgb) )
 	{
 		return PS.OopsCallstack(fn + "RGB parameter not a number");
 	}
@@ -489,7 +489,7 @@ PS.ColorParams = function (fn, rgb, g, b)
 
 	// if it's a number, it's either a multiplex or the start of a triplet
 	
-	if ( type === "number" || rgb === NaN )
+	if ( type === "number" || isNaN(rgb) )
 	{
 		if ( g === undefined ) // assume a multiplex
 		{
@@ -571,7 +571,7 @@ PS.ColorParams = function (fn, rgb, g, b)
 	
 	if ( !valid )
 	{
-		if ( typeof red !== "number" || red === NaN )
+		if ( typeof red !== "number" || isNaN(red) )
 		{
 			PS.OopsCallstack(fn + "red value is not a number");
 			return null;
@@ -583,7 +583,7 @@ PS.ColorParams = function (fn, rgb, g, b)
 			return null;
 		}
 	
-		if ( typeof green !== "number" || green === NaN )
+		if ( typeof green !== "number" || isNaN(green) )
 		{
 			PS.OopsCallstack(fn + "green value is not a number");
 			return null;
@@ -595,7 +595,7 @@ PS.ColorParams = function (fn, rgb, g, b)
 			return null;
 		}
 		
-		if ( typeof blue !== "number" || blue === NaN )
+		if ( typeof blue !== "number" || isNaN(blue) )
 		{
 			PS.OopsCallstack(fn + "blue value is not a number");
 			return null;
@@ -987,7 +987,7 @@ PS.CheckX = function ( x, fn )
 		return false;
 	}
 
-	if ( typeof x !== "number" || x === NaN )
+	if ( typeof x !== "number" || isNaN(x) )
 	{
 		PS.OopsCallstack(fn + "x parameter not a number");
 		return false;
@@ -1018,7 +1018,7 @@ PS.CheckY = function ( y, fn )
 		return false;
 	}
 	
-	if ( typeof y !== "number" || y === NaN )
+	if ( typeof y !== "number" || isNaN(y) )
 	{
 		PS.OopsCallstack(fn + "y parameter not a number");
 		return false;
@@ -1055,7 +1055,7 @@ PS.GridSize = function (w, h)
 	}
 	else 
 	{
-		if ( typeof w !== "number" || w === NaN )
+		if ( typeof w !== "number" || isNaN(w) )
 		{
 			return PS.OopsCallstack(fn + "Width param not a number");
 		}
@@ -1078,7 +1078,7 @@ PS.GridSize = function (w, h)
 	}	
 	else
 	{
-		if ( typeof h !== "number" || h === NaN )
+		if ( typeof h !== "number" || isNaN(h) )
 		{
 			return PS.OopsCallstack(fn + "Height param not a number");
 		}
@@ -1288,7 +1288,7 @@ PS.MakeRGB = function (r, g, b)
 
 	fn = "[PS.MakeRGB] ";
 
-	if ( typeof r !== "number" || r === NaN )
+	if ( typeof r !== "number" || isNaN(r) )
 	{
 		return PS.OopsCallstack(fn + "R parameter not a number");
 	}
@@ -1302,7 +1302,7 @@ PS.MakeRGB = function (r, g, b)
 		r = 255;
 	}
 
-	if ( typeof g !== "number" || g === NaN )
+	if ( typeof g !== "number" || isNaN(g) )
 	{
 		return PS.OopsCallstack(fn + "G parameter not a number");
 	}
@@ -1316,7 +1316,7 @@ PS.MakeRGB = function (r, g, b)
 		g = 255;
 	}
 
-	if ( typeof b !== "number" || b === NaN )
+	if ( typeof b !== "number" || isNaN(b) )
 	{
 		return PS.OopsCallstack(fn + "B parameter not a number");
 	}
@@ -1654,7 +1654,7 @@ PS.BeadAlpha = function (x, y, a)
 
 	if ( a !== undefined )
 	{
-		if ( typeof a !== "number" || a === NaN )
+		if ( typeof a !== "number" || isNaN(a) )
 		{
 			return PS.OopsCallstack(fn + "alpha param is not a number");
 		}
@@ -1778,7 +1778,7 @@ PS.BeadBorderWidth = function (x, y, width)
 	}
 	else if ( (width !== undefined) && (width !== PS.CURRENT) )
 	{
-		if( typeof width === "number" && width !== NaN )
+		if( typeof width === "number" && !isNaN(width) )
 		{
 			width = Math.floor(width);
 			if ( width < 0 )
@@ -2018,7 +2018,7 @@ PS.BeadBorderAlpha = function (x, y, a)
 
 	if ( a !== undefined )
 	{
-		if ( typeof a !== "number" || a === NaN )
+		if ( typeof a !== "number" || isNaN(a) )
 		{
 			return PS.OopsCallstack(fn + "alpha param is not a number");
 		}
@@ -2175,7 +2175,7 @@ PS.BeadGlyph = function (x, y, g)
 			}
 			g = g.charCodeAt(0); // use only first character
 		}
-		else if ( type === "number" && g !== NaN )
+		else if ( type === "number" && !isNaN(g) )
 		{
 			g = Math.floor(g);
 			if ( g === PS.DEFAULT )
@@ -2695,7 +2695,7 @@ PS.BeadAudio = function (x, y, audio, volume)
 		}
 		else
 		{
-			if ( typeof volume !== "number" || volume === NaN )
+			if ( typeof volume !== "number" || isNaN(volume) )
 			{
 				return PS.OopsCallstack(fn + "Volume param not a number");
 			}
@@ -3051,7 +3051,7 @@ PS.StatusFadeUp = function (rate)
 		}
 		else
 		{
-			if ( typeof rate !== "number" || rate === NaN )
+			if ( typeof rate !== "number" || isNaN(rate) )
 			{
 				return PS.OopsCallstack(fn + "rate paramater not a number");
 			}
@@ -3094,7 +3094,7 @@ PS.StatusFadeDown = function (rate, delay)
 		}
 		else
 		{
-			if ( typeof rate !== "number" || rate === NaN )
+			if ( typeof rate !== "number" || isNaN(rate) )
 			{
 				return PS.OopsCallstack(fn + "rate parameter not a number");
 			}
@@ -3127,7 +3127,7 @@ PS.StatusFadeDown = function (rate, delay)
 				}
 				else
 				{
-					if ( typeof delay !== "number" || delay === NaN )
+					if ( typeof delay !== "number" || isNaN(delay) )
 					{
 						return PS.OopsCallstack(fn + "delay parameter not a number");
 					}
@@ -3397,7 +3397,7 @@ PS.Clock = function ( ticks )
 
 	if ( ticks !== undefined )
 	{
-		if ( typeof ticks !== "number" || ticks === NaN )
+		if ( typeof ticks !== "number" || isNaN(ticks) )
 		{
 			return PS.OopsCallstack(fn + "ticks parameter not a number");
 		}
@@ -4275,7 +4275,7 @@ PS.Random = function (val)
 	var fn;
 
 	fn = "[PS.Random] ";
-	if ( typeof val !== "number" || val === NaN )
+	if ( typeof val !== "number" || isNaN(val) )
 	{		
 		return PS.OopsCallstack(fn + "Parameter is not a number");
 	}	
@@ -4309,7 +4309,7 @@ PS.Piano = function ( val, flag )
 
 	fn = "[PS.Piano] ";
 
-	if ( typeof val !== "number" || val === NaN )
+	if ( typeof val !== "number" || isNaN(val) )
 	{
 		return PS.OopsCallstack(fn + "Parameter is not a number");
 	}
@@ -4347,7 +4347,7 @@ PS.Harpsichord = function ( val, flag )
 
 	fn = "[PS.Harpsichord] ";
 
-	if ( typeof val !== "number" || val === NaN )
+	if ( typeof val !== "number" || isNaN(val) )
 	{
 		return PS.OopsCallstack(fn + "Parameter is not a number");
 	}
@@ -4383,7 +4383,7 @@ PS.Xylophone = function ( val )
 
 	fn = "[PS.Xylophone] ";
 
-	if ( typeof val !== "number" || val === NaN )
+	if ( typeof val !== "number" || isNaN(val) )
 	{
 		return PS.OopsCallstack(fn + "Parameter is not a number");
 	}
@@ -4478,7 +4478,7 @@ PS.ImageLoad = function ( file, func, format )
 	}
 	else
 	{
-		if ( typeof format !== "number" || format === NaN )
+		if ( typeof format !== "number" || isNaN(format) )
 		{
 			return PS.OopsCallstack(fn + "format parameter not a number");	
 		}
@@ -4524,14 +4524,14 @@ PS.ImageData = function ( img, format )
 	// check validity of img structure
 	
 	w = img.width;
-	if ( (typeof w !== "number" || w === NaN) || (w < 0) )
+	if ( (typeof w !== "number" || isNaN(w)) || (w < 0) )
 	{
 		return PS.OopsCallstack(fn + "Image .width invalid");		
 	}
 	w = Math.floor(w);
 	
 	h = img.height;
-	if ( (typeof h !== "number" || h === NaN) || (h < 0) )
+	if ( (typeof h !== "number" || isNaN(h)) || (h < 0) )
 	{
 		return PS.OopsCallstack(fn + "Image .height invalid");		
 	}
@@ -4660,7 +4660,7 @@ PS.ImageBlit = function ( imgdata, xpos, ypos, left, top, width, height )
 	}
 	
 	w = imgdata.width;
-	if ( typeof w !== "number" || w === NaN )
+	if ( typeof w !== "number" || isNaN(w) )
 	{
 		return PS.OopsCallstack(fn + "imgdata.width not a number");		
 	}
@@ -4671,7 +4671,7 @@ PS.ImageBlit = function ( imgdata, xpos, ypos, left, top, width, height )
 	}
 
 	h = imgdata.height;
-	if ( typeof h !== "number" || h === NaN )
+	if ( typeof h !== "number" || isNaN(h) )
 	{
 		return PS.OopsCallstack(fn + "imgdata.height not a number");		
 	}
@@ -4683,7 +4683,7 @@ PS.ImageBlit = function ( imgdata, xpos, ypos, left, top, width, height )
 	
 	a = PS.D_ALPHA; // assume default alpha
 	psize = imgdata.pixelSize;
-	if ( typeof psize !== "number" || psize === NaN )
+	if ( typeof psize !== "number" || isNaN(psize) )
 	{
 		return PS.OopsCallstack(fn + "imgdata.pixelSize not a number");			
 	}
@@ -4710,7 +4710,7 @@ PS.ImageBlit = function ( imgdata, xpos, ypos, left, top, width, height )
 	}
 	else 
 	{
-		if ( typeof xpos !== "number" || xpos === NaN )
+		if ( typeof xpos !== "number" || isNaN(xpos) )
 		{
 			return PS.OopsCallstack(fn + "xpos parameter not a number");		
 		}
@@ -4732,7 +4732,7 @@ PS.ImageBlit = function ( imgdata, xpos, ypos, left, top, width, height )
 	}
 	else
 	{
-		if ( typeof ypos !== "number" || ypos === NaN )
+		if ( typeof ypos !== "number" || isNaN(ypos) )
 		{
 			return PS.OopsCallstack(fn + "ypos parameter not a number");		
 		}
@@ -4759,7 +4759,7 @@ PS.ImageBlit = function ( imgdata, xpos, ypos, left, top, width, height )
 	{
 		// check left parameter
 		
-		if ( typeof left !== "number" || left === NaN )
+		if ( typeof left !== "number" || isNaN(left) )
 		{
 			return PS.OopsCallstack(fn + "left parameter not a number");		
 		}
@@ -4771,7 +4771,7 @@ PS.ImageBlit = function ( imgdata, xpos, ypos, left, top, width, height )
 				
 		// check top parameter
 		
-		if ( typeof top !== "number" || top === NaN )
+		if ( typeof top !== "number" || isNaN(top) )
 		{
 			return PS.OopsCallstack(fn + "top parameter not a number");		
 		}
@@ -4783,7 +4783,7 @@ PS.ImageBlit = function ( imgdata, xpos, ypos, left, top, width, height )
 		
 		// check width parameter
 		
-		if ( typeof width !== "number" || width === NaN )
+		if ( typeof width !== "number" || isNaN(width) )
 		{
 			return PS.OopsCallstack(fn + "width parameter not a number");		
 		}
@@ -4800,7 +4800,7 @@ PS.ImageBlit = function ( imgdata, xpos, ypos, left, top, width, height )
 				
 		// check height parameter
 		
-		if ( typeof height !== "number" || height === NaN )
+		if ( typeof height !== "number" || isNaN(height) )
 		{
 			return PS.OopsCallstack(fn + "height parameter not a number");		
 		}
@@ -5241,7 +5241,7 @@ PS.AudioPlay = function (id, volume, func, path, data)
 	}
 	else
 	{
-		if ( typeof volume !== "number" || volume === NaN )
+		if ( typeof volume !== "number" || isNaN(volume) )
 		{
 			return PS.OopsCallstack(fn + "Volume parameter not a number");	
 		}		
@@ -5353,7 +5353,7 @@ PS.AudioStop = function (c)
 
 	fn = "[PS.AudioStop] ";
 
-	if ( typeof c !== "number" || c === NaN )
+	if ( typeof c !== "number" || isNaN(c) )
 	{
 		return PS.OopsCallstack(fn + "Parameter is not a number");		
 	}
@@ -5386,7 +5386,7 @@ PS.AudioPause = function (c)
 
 	fn = "[PS.AudioPause] ";
 
-	if ( typeof c !== "number" || c === NaN )
+	if ( typeof c !== "number" || isNaN(c) )
 	{		
 		return PS.OopsCallstack(fn + "Parameter is not a number");		
 	}
