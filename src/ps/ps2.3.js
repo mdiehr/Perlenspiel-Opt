@@ -3587,7 +3587,8 @@ PS.XTimer = function ()
 				
 				try
 				{
-					PS.KeyDown(key, PS.HoldShift, PS.HoldCtrl);	
+					PS.KeyDown(key, PS.HoldShift, PS.HoldCtrl);
+					PS.RenderGrid();
 				}
 				catch (err)
 				{
