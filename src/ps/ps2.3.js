@@ -5,6 +5,9 @@ Perlenspiel is a scheme by Professor Moriarty (bmoriarty@wpi.edu).
 Perlenspiel is Copyright © 2009-13 Worcester Polytechnic Institute.
 This file is part of Perlenspiel.
 
+Modifications to version 2.3.13 by Mark Diehr on 8/28/2013
+	+ Fixed bug with key repeat not redrawing the grid
+
 Modifications to version 2.3.12x by Mark Diehr on 8/07/2013
 	+ Syntax error notifications
 
@@ -354,7 +357,7 @@ var PS = {
 	
 	// version numbers
 
-	MAJ: 2,	MIN: 3,	REV: 12
+	MAJ: 2,	MIN: 3,	REV: 13
 };
 
 // Improved typeof that distinguishes arrays
