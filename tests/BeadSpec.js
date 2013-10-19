@@ -16,74 +16,14 @@ var mouseDown = false;
 /////////////////////////////////////////////////////////////////////
 // Functions
 
-function BeadStyleRange(x, y, w, h, style)
-{
-	for( var xi = x; xi < x + w; ++xi )
-	{
-		for( var yi = y; yi < y + h; ++yi )
-		{
-			XBApplyBeadStyle(xi, yi, style);
-		}
-	}
-}
-
-
-// Applies a style wholesale to a bead
-function BeadStyle(x, y, style)
-{
-	if( PS.CheckX(x, "BeadStyle") && PS.CheckY(y, "BeadStyle") )
-	{
-		var w = 1;
-		var h = 1;
-		
-		if( x === PS.ALL )
-		{
-			x = 0;
-			w = PS.Grid.x;
-		}
-
-		if( y === PS.ALL )
-		{
-			y = 0;
-			h = PS.Grid.y;
-		}
-		
-		BeadStyleRange(x, y, w, h, style)
-	}
-	else
-	{
-		return PS.ERROR;
-	}
-	
-	return true;
-}
-function XBApplyBeadStyle(x, y, style)
-{
-	PS.BeadFlash(x, y, style.flash);
-	PS.BeadData(x, y, style.data);
-	PS.BeadBorderWidth(x, y, style.borderWidth);
-	PS.BeadBorderColor(x, y, style.borderColor);
-	PS.BeadShow(x, y, style.show);
-	PS.BeadColor(x, y, style.color);
-	PS.BeadGlyph(x, y, style.glyph);
-	PS.BeadGlyphColor(x, y, style.glyphColor);
-	PS.BeadAlpha(x, y, style.alpha);
-	PS.BeadBorderAlpha(x, y, style.borderAlpha);
-	PS.BeadFlashColor(x, y, style.flashColor);
-	if( style.audio )
-		PS.BeadAudio(x, y, style.audio);
-	if( typeof style.exec === "function" )
-		PS.BeadFunction(x, y, style.exec);
-}
-
 function Paint(x, y)
 {
-	BeadStyle(x, y, BeadPaint);
+	PS.BeadStyle(x, y, BeadPaint);
 }
 
 function PaintEnter(x, y)
 {
-	BeadStyle(x, y, BeadEnter);
+	PS.BeadStyle(x, y, BeadEnter);
 	
 	if( mouseDown )
 	{
@@ -93,7 +33,7 @@ function PaintEnter(x, y)
 
 function PaintLeave(x, y)
 {
-	BeadStyle(x, y, BeadLeave);
+	PS.BeadStyle(x, y, BeadLeave);
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -111,7 +51,7 @@ PS.Init = function (options)
 	PS.StatusFade(false);
 	PS.StatusText("Use the mouse to paint.");
 	
-	BeadStyle(PS.ALL, PS.ALL, BeadBG);
+	PS.BeadStyle(PS.ALL, PS.ALL, BeadBG);
 
 };
 

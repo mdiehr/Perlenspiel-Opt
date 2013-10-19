@@ -5,6 +5,9 @@ Perlenspiel is a scheme by Professor Moriarty (bmoriarty@wpi.edu).
 Perlenspiel is Copyright © 2009-13 Worcester Polytechnic Institute.
 This file is part of Perlenspiel.
 
+Modifications to version 2.3.14 by Mark Diehr on 10/12/2013
+	+ Bead style object support via PS.BeadStyle and PS.BeadStyleRect
+
 Modifications to version 2.3.13 by Mark Diehr on 8/28/2013
 	+ Fixed bug with key repeat not redrawing the grid
 
@@ -990,6 +993,10 @@ PS.CheckX = function ( x, fn )
 		return false;
 	}
 
+	if( x === PS.ALL )
+	{
+		return true;
+	}
 	if ( typeof x !== "number" || isNaN(x) )
 	{
 		PS.OopsCallstack(fn + "x parameter not a number");
@@ -1021,6 +1028,10 @@ PS.CheckY = function ( y, fn )
 		return false;
 	}
 	
+	if( y === PS.ALL )
+	{
+		return true;
+	}
 	if ( typeof y !== "number" || isNaN(y) )
 	{
 		PS.OopsCallstack(fn + "y parameter not a number");
@@ -1337,6 +1348,103 @@ PS.MakeRGB = function (r, g, b)
 
 	return rgb;
 };
+
+// New Bead API functions
+
+
+// PS.XBApplyBeadStyle(x, y, style)
+// Applies a style to a bead. The style encompasses every possible bead function
+// [x, y] are grid position
+// [style] must be an object containing bead properties or nothing
+PS.XBApplyBeadStyle = function(x, y, style)
+{
+	PS.BeadFlash(x, y, style.flash);
+	PS.BeadData(x, y, style.data);
+	PS.BeadBorderWidth(x, y, style.borderWidth);
+	PS.BeadBorderColor(x, y, style.borderColor);
+	PS.BeadShow(x, y, style.show);
+	PS.BeadColor(x, y, style.color);
+	PS.BeadGlyph(x, y, style.glyph);
+	PS.BeadGlyphColor(x, y, style.glyphColor);
+	PS.BeadAlpha(x, y, style.alpha);
+	PS.BeadBorderAlpha(x, y, style.borderAlpha);
+	PS.BeadFlashColor(x, y, style.flashColor);
+	if( style.audio )
+		PS.BeadAudio(x, y, style.audio);
+	if( typeof style.exec === "function" )
+		PS.BeadFunction(x, y, style.exec);
+}
+
+// PS.BeadStyle(x, y, style)
+// Applies a style to a bead. The style encompasses every possible bead function
+// [x, y] are grid position
+// [style] must be an object containing bead properties or nothing
+// Validates the location of the bead
+// Allows PS.ALL to replace one of the coordinates
+
+PS.BeadStyle = function(x, y, style)
+{
+	if( PS.CheckX(x, "[PS.BeadStyle]") && PS.CheckY(y, "[PS.BeadStyle]") )
+	{
+		var looped = false;
+		var w = 1;
+		var h = 1;
+		
+		if( x === PS.ALL )
+		{
+			x = 0;
+			w = PS.Grid.x;
+			looped = true;
+		}
+
+		if( y === PS.ALL )
+		{
+			y = 0;
+			h = PS.Grid.y;
+			looped = true;
+		}
+		
+		if( looped )
+		{
+			PS.BeadStyleRect(x, y, w, h, style)
+		}
+		else
+		{
+			PS.XBApplyBeadStyle(x, y, style);
+		}
+	}
+	else
+	{
+		// The coordinate was out of bounds.
+		return PS.ERROR;
+	}
+	
+	return true;
+}
+
+// PS.BeadStyleRect(x, y, style)
+// Apply a style to a range of beads specified by upper left corner, width, and height
+// [x, y] are grid position
+// [w, h] are the width and height of the range
+// [style] must be an object containing bead properties or nothing
+// Validates the location of the bead
+
+PS.BeadStyleRect = function(x, y, w, h, style)
+{
+	// Clamp ranges
+	x = Math.max(x, 0);
+	y = Math.max(y, 0);
+	w = Math.min(w, PS.Grid.x);
+	h = Math.min(w, PS.Grid.y);
+
+	for( var xi = x; xi < (x + w); ++xi )
+	{
+		for( var yi = y; yi < (y + h); ++yi )
+		{
+			PS.XBApplyBeadStyle(xi, yi, style);
+		}
+	}
+}
 
 // Bead API
 
@@ -4080,14 +4188,12 @@ PS.SysKeyDown = function (event)
 	
 	if ( PS.DebugFocus )
 	{
-		event.returnValue = true;
+		event.preventDefault();
 		return true;
 	}
 	
 	if ( PS.KeyDown ) // only if function exists
-	{		
-		event.returnValue = false;
-		
+	{
 		if ( !event.which )
 		{
 			key = event.keyCode;    // IE
@@ -4143,7 +4249,7 @@ PS.SysKeyUp = function (event)
 
 	if ( PS.KeyUp ) // only if function exists
 	{
-		event.returnValue = false;
+		event.preventDefault();
 		
 		if ( event.which === null )
 		{
@@ -4197,7 +4303,6 @@ PS.SysWheel = function (event)
 
 	if ( !PS.OverCanvas )
 	{
-		event.returnValue = true;
 		return true;
 	}
 	
@@ -4259,7 +4364,7 @@ PS.SysWheel = function (event)
 		}
 	}
 
-	event.returnValue = false;
+	event.preventDefault();
 };
 
 // Generic default event handler for debugger
@@ -4268,7 +4373,6 @@ PS.DefaultEvent = function (event)
 {
 	"use strict";
 
-	event.returnValue = true;
 };
 
 // Library stuff
