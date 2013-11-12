@@ -1,5 +1,5 @@
-// ps3.0.0.js for Perlenspiel 3.0
-// Alpha 1.0.6
+// ps3.0.1.js for Perlenspiel 3.0
+// Remember to update version number in _system!
 
 /*
  Perlenspiel is a scheme by Professor Moriarty (bmoriarty@wpi.edu).
@@ -203,7 +203,7 @@ var PS; // Global namespace for public API
 		engine : "Perlenspiel",
 		major : 3,
 		minor : 0,
-		revision : 0,
+		revision : 1,
 		host : {
 			app : "Unknown App",
 			version : "?",
@@ -8660,16 +8660,16 @@ var PS; // Global namespace for public API
 				return _error(  fn + "exec argument not a function" );
 			}
 
-			// Create an array of extra arguments
+			// Create an array of arguments
+			// First two elements reserved for x/y
 
-			arglist = [];
+			arglist = [ 0, 0 ];
 			if ( args > 5 )
 			{
 				len = args - 5;
-				arglist.length = len;
 				for ( i = 0; i < len; i += 1 )
 				{
-					arglist[ i ] = arguments[ i + 5 ];
+					arglist.push( arguments[ i + 5 ] );
 				}
 			}
 
@@ -8677,8 +8677,10 @@ var PS; // Global namespace for public API
 
 			for ( y = top; y < bottom; y += 1 )
 			{
+				arglist[ 1 ] = y;
 				for ( x = left; x < right; x += 1 )
 				{
+					arglist[ 0 ] = x;
 					try
 					{
 						result = exec.apply( _EMPTY, arglist );
