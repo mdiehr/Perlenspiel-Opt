@@ -1,4 +1,4 @@
-// ps3.0.2.js for Perlenspiel 3.0
+// ps3.0.3.js for Perlenspiel 3.0
 // Remember to update version number in _system!
 
 /*
@@ -123,7 +123,7 @@ var PS; // Global namespace for public API
 			color : {
 				r : 0, g : 0, b : 0, a : 255,
 				rgb : 0x000000,
-				str : "rgba(0,0,0,1.0)"
+				str : "rgba(0,0,0,1)"
 			}
 		},
 
@@ -146,7 +146,7 @@ var PS; // Global namespace for public API
 			color : {
 				r : 255, g : 255, b : 255, a : 255,
 				rgb : 0xFFFFFF,
-				str : "rgba(255,255,255,1.0)"
+				str : "rgba(255,255,255,1)"
 			},
 			radius : 0,
 			scale : 100,
@@ -161,7 +161,7 @@ var PS; // Global namespace for public API
 				color : {
 					r : 128, g : 128, b : 128, a : 255,
 					rgb : 0x808080,
-					str : "rgba(128,128,128,1.0)"
+					str : "rgba(128,128,128,1)"
 				}
 			},
 
@@ -177,7 +177,7 @@ var PS; // Global namespace for public API
 				color : {
 					r : 0, g : 0, b : 0, a : 255,
 					rgb : 0x000000,
-					str : "rgba(0,0,0,1.0)"
+					str : "rgba(0,0,0,1)"
 				}
 			}
 		},
@@ -203,7 +203,7 @@ var PS; // Global namespace for public API
 		engine : "Perlenspiel",
 		major : 3,
 		minor : 0,
-		revision : 2,
+		revision : 3,
 		host : {
 			app : "Unknown App",
 			version : "?",
@@ -8297,7 +8297,7 @@ var PS; // Global namespace for public API
 				arglist.length = len;
 				for ( i = 0; i < len; i += 1 )
 				{
-					arglist[ i ] = arguments[ i + 3 ];
+					arglist[ i ] = arguments[ i + 2 ];
 				}
 			}
 
