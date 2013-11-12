@@ -1,4 +1,4 @@
-// ps3.0.3.js for Perlenspiel 3.0
+// ps3.0.5.js for Perlenspiel 3.0
 // Remember to update version number in _system!
 
 /*
@@ -203,7 +203,7 @@ var PS; // Global namespace for public API
 		engine : "Perlenspiel",
 		major : 3,
 		minor : 0,
-		revision : 3,
+		revision : 5,
 		host : {
 			app : "Unknown App",
 			version : "?",
@@ -446,13 +446,33 @@ var PS; // Global namespace for public API
 		}
 	}
 
+	// _colorBlendAlpha( c0, c1 )
+	// Blend color c1 over c0. Color components are in 0-255, alpha is 0-1
+	// Added by Mark Diehr
+
+	function _colorBlendAlpha ( c0, c1 )
+	{
+		var alphaCover, result;
+
+		alphaCover = c0.a * ( 1 - c1.a );
+		result = {
+			r : Math.floor( ( c1.r * c1.a ) + ( c0.r * alphaCover ) ),
+			g : Math.floor( ( c1.g * c1.a ) + ( c0.g * alphaCover ) ),
+			b : Math.floor( ( c1.b * c1.a ) + ( c0.b * alphaCover ) )
+		};
+		return result;
+	}
+
 	// _calcColor ( bead, gridColor )
 	// Calculates effective color of a bead against a background color
 	// Returns values through [target] object
+	// Calculates effective color of a bead against a background color
+	// Returns values through [target] object
+	// Modified by Mark Diehr
 
 	function _calcColor ( bead, backColor, target )
 	{
-		var pr, pg, pb, planes, len, i, color, level, r, g, b, a, percent, delta;
+		var pr, pg, pb, planes, len, i, color, level, r, g, b, a, beadAlpha, c0, c1, colorResult;
 
 		pr = backColor.r;
 		pg = backColor.g;
@@ -460,6 +480,7 @@ var PS; // Global namespace for public API
 
 		planes = bead.planes;
 		len = planes.length;
+
 		for ( i = 0; i < len; i += 1 )
 		{
 			level = planes[ i ];
@@ -469,96 +490,35 @@ var PS; // Global namespace for public API
 			b = color.b;
 			a = color.a;
 
-			// Calculate effect of alpha if not opaque
+			// Calculate effect of overlaying the new color
 
-			if ( a < 255 )
+			if ( a > 0 )
 			{
-				if ( a > 0 )
+				if ( a < 255 ) // Blend color
 				{
-					percent = ( a * 100 ) / 255; // convert to percent
-					if ( percent <= 0 )
-					{
-						r = pr;
-						g = pg;
-						b = pb;
-					}
-					else if ( percent < 100 )
-					{
-						// Red channel
-
-						if ( pr !== r )
-						{
-							if ( pr > r )
-							{
-								delta = pr - r;
-								delta = ( percent * delta ) / 100;
-								delta = Math.floor( delta );
-								r = pr - delta;
-							}
-							else
-							{
-								delta = r - pr;
-								delta = ( percent * delta ) / 100;
-								delta = Math.floor( delta );
-								r = pr + delta;
-							}
-						}
-
-						// Green channel
-
-						if ( pg !== g)
-						{
-							if ( pg > g )
-							{
-								delta = pg - g;
-								delta = ( percent * delta ) / 100;
-								delta = Math.floor( delta );
-								g = pg - delta;
-							}
-							else
-							{
-								delta = g - pg;
-								delta = ( percent * delta ) / 100;
-								delta = Math.floor( delta );
-								g = pg + delta;
-							}
-						}
-
-						// blue channel
-
-						if ( pb !== b )
-						{
-							if ( pb > b )
-							{
-								delta = pb - b;
-								delta = ( percent * delta ) / 100;
-								delta = Math.floor( delta );
-								b = pb - delta;
-							}
-							else
-							{
-								delta = b - pb;
-								delta = ( percent * delta ) / 100;
-								delta = Math.floor( delta );
-								b = pb + delta;
-							}
-						}
-					}
+					beadAlpha = Math.max( 0, Math.min( ( a / 255 ), 1 ) ); // Rescale and clamp alpha to range [0..1]
+					c0 = { r : pr, g : pg, b : pb, a : 1 }; // Back color
+					c1 = { r :r, g : g, b : b, a : beadAlpha }; // Fore color
+					colorResult = _colorBlendAlpha( c0, c1 );
+					// Write results
+					pr = colorResult.r;
+					pg = colorResult.g;
+					pb = colorResult.b;
 				}
-				else
+				else // Overwrite color
 				{
-					r = pr;
-					g = pg;
-					b = pb;
+					pr = r;
+					pg = g;
+					pb = b;
 				}
-			}
-			else
-			{
-				pr = r;
-				pg = g;
-				pb = b;
 			}
 		}
+
+		// Take results from the calculated color
+
+		r = pr;
+		g = pg;
+		b = pb;
 
 		// [ r | g | b ] now contain new effective target color
 
@@ -2503,7 +2463,7 @@ var PS; // Global namespace for public API
 
 		if ( ( key >= 65 ) && ( key <= 90 ) )
 		{
-			if ( shift )
+			if ( !shift ) // returns UPPER CASE when NOT shifted!
 			{
 				key += 32;
 			}
@@ -2691,7 +2651,7 @@ var PS; // Global namespace for public API
 
 				if ( !_pressed[ key ] )
 				{
-					key = _keyFilter( key, event.shiftKey );
+					key = _keyFilter( key, _holdShift );
 
 					_pressed[ key ] = 1; // mark key as being pressed
 
@@ -2711,7 +2671,7 @@ var PS; // Global namespace for public API
 					{
 						try
 						{
-							PS.keyDown( key, event.shiftKey, event.ctrlKey, _EMPTY );
+							PS.keyDown( key, _holdShift, _holdCtrl, _EMPTY );
 							_gridDraw();
 						}
 						catch( err )
@@ -6397,16 +6357,16 @@ var PS; // Global namespace for public API
 
 			// Status line, append to main
 
-			status = document.createElement( "input" );
+			status = document.createElement( "p" ); // "input"
 			if ( !status )
 			{
 				window.alert( errm );
 				return;
 			}
 			status.id = _STATUS_ID;
-			status.type = "text";
-			status.readonly = "readonly";
-			status.value = "";
+//			status.type = "text";
+//			status.readonly = "readonly";
+			status.innerHTML = "&nbsp;";
 			main.appendChild( status );
 
 			// create grid canvas
@@ -8030,7 +7990,13 @@ var PS; // Global namespace for public API
 				{
 					return _error( fn + "argument not a string" );
 				}
-				_status.div.value = _status.text = str;
+
+                _status.text = str;
+                if ( str.length < 1 )
+                {
+                    str = "&nbsp;";
+                }
+				_status.div.innerHTML = str;
 			}
 
 			return _status.text;
