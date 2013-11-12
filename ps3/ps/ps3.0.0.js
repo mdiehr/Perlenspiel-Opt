@@ -1,4 +1,4 @@
-// ps3.0.1.js for Perlenspiel 3.0
+// ps3.0.2.js for Perlenspiel 3.0
 // Remember to update version number in _system!
 
 /*
@@ -203,7 +203,7 @@ var PS; // Global namespace for public API
 		engine : "Perlenspiel",
 		major : 3,
 		minor : 0,
-		revision : 1,
+		revision : 2,
 		host : {
 			app : "Unknown App",
 			version : "?",
@@ -6554,12 +6554,29 @@ var PS; // Global namespace for public API
 						rad = 5;
 					}
 
-					this.beginPath( );
-					this.moveTo( xx + rad, yy );
-					this.arcTo( xx + ww, yy, xx + ww, yy + hh, rad );
-					this.arcTo( xx + ww, yy + hh, xx, yy + hh, rad );
-					this.arcTo( xx, yy + hh, xx, yy, rad );
-					this.arcTo( xx, yy, xx + ww, yy, rad );
+					this.beginPath();
+
+					// Must draw counterclockwise for Opera!
+					// Fix by Mark Diehr
+
+					if ( _system.host.app === "Opera" )
+					{
+						this.moveTo(xx + ww - rad, yy);
+						this.arcTo( xx + rad, yy, xx, yy + rad, rad );
+						this.arcTo( xx, yy + hh - rad, xx + rad, yy + hh, rad );
+						this.arcTo( xx + ww - rad, yy + hh, xx + ww, yy + hh - rad, rad );
+						this.arcTo( xx + ww, yy + rad, xx + ww - rad, yy, rad );
+					}
+					else
+					{
+						this.moveTo( xx + rad, yy );
+						this.arcTo( xx + ww, yy, xx + ww, yy + hh, rad );
+						this.arcTo( xx + ww, yy + hh, xx, yy + hh, rad );
+						this.arcTo( xx, yy + hh, xx, yy, rad );
+						this.arcTo( xx, yy, xx + ww, yy, rad );
+					}
+
+					this.closePath();
 
 					if ( stroke )
 					{
