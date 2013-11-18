@@ -1,4 +1,4 @@
-﻿// ps2.3.12x.js for Perlenspiel 2.3
+﻿// ps2.3.14x.js for Perlenspiel 2.3
 
 /*
 Perlenspiel is a scheme by Professor Moriarty (bmoriarty@wpi.edu).
@@ -360,7 +360,7 @@ var PS = {
 	
 	// version numbers
 
-	MAJ: 2,	MIN: 3,	REV: 13
+	MAJ: 2,	MIN: 3,	REV: 14
 };
 
 // Improved typeof that distinguishes arrays
@@ -3310,6 +3310,10 @@ PS.DebugOpen = function ()
 	if ( !PS.DebugWindow )
 	{
 		div = document.getElementById(PS.DBG_ID);
+		if( div === null ) {
+			console.error("Can't open debug area: The Perlenspiel engine hasn't been initialized yet.")
+			throw "Perlenspiel Uninitialized Error";
+		}
 		div.style.display = "inline";
 
 		// clear it
@@ -5695,6 +5699,10 @@ PS.LoadHTML5Audio = function (fullpath, volume, func, data, now)
 	for ( i = 0; i < PS.AUDIO_MAX_CH; i += 1 ) // search all channels
 	{
 		channel = PS.AudioChannels[i];
+		if( !channel ) {
+			console.error("Can't use Audio: The Perlenspiel engine hasn't been initialized yet.")
+			throw "Perlenspiel Uninitialized Error";
+		}
 		if ( channel.status === PS.CH_EMPTY )
 		{			
 			PS.ChannelsUsed = i + 1; // new channel now in use
