@@ -1,4 +1,4 @@
-﻿/* game.js for Perlenspiel 2.3.13
+﻿/* game.js for Perlenspiel 2.3.14
 Modifications by Mark Diehr: mdiehr@fullsail.com */
 
 /* Perlenspiel is a scheme by Professor Moriarty (bmoriarty@wpi.edu).
