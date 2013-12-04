@@ -1,4 +1,4 @@
-// ps3.0.7.js for Perlenspiel 3.0
+// ps3.0.8.js for Perlenspiel 3.0
 // Remember to update version number in _system!
 
 /*
@@ -96,6 +96,10 @@ var PS; // Global namespace for public API
 		"c6", "db6", "d6", "eb6", "e6", "f6", "gb6", "g6", "ab6", "a6", "bb6", "b6",
 		"c7", "db7", "d7", "eb7", "e7", "f7", "gb7", "g7", "ab7", "a7", "bb7", "b7"
 	];
+
+	// Flag to reluctantly permit multiline status; remove for 3.1
+
+	var _MULTILINE = true;
 
 	// All system defaults kept in this object
 	// On startup, they are copied into [_defaults] for referencing
@@ -205,7 +209,7 @@ var PS; // Global namespace for public API
 		engine : "Perlenspiel",
 		major : 3,
 		minor : 0,
-		revision : 7,
+		revision : 8,
 		host : {
 			app : "Unknown App",
 			version : "?",
@@ -316,6 +320,97 @@ var PS; // Global namespace for public API
 
 		return type;
 	}
+
+	// _isBoolean ( val )
+	// Evaluates [val] for a valid boolean: true, false, null, numeric, PS.CURRENT, PS.DEFAULT or undefined
+	// [currentVal] is PS.CURRENT value
+	// [defaultVal] is PS.DEFAULT value
+	// [undefinedVal] is undefined value
+	// Returns true, false or PS.ERROR
+
+	function _isBoolean ( valP, currentVal, defaultVal, undefinedVal )
+	{
+		var val, type;
+
+		val = valP; // prevent arg mutation
+
+		if ( ( val !== true ) && ( val !== false ) )
+		{
+			if ( val === null )
+			{
+				val = false;
+			}
+			else if ( val === PS.CURRENT )
+			{
+				val = currentVal;
+			}
+			else if ( val === PS.DEFAULT )
+			{
+				val = defaultVal;
+			}
+			else
+			{
+				type = _typeOf( val );
+				if ( type === "undefined" )
+				{
+					val = undefinedVal;
+				}
+				else if ( type === "number" )
+				{
+					val = ( val !== 0 );
+				}
+				else
+				{
+					val = PS.ERROR;
+				}
+			}
+		}
+
+		return val;
+	}
+
+	// _isInteger ( val )
+	// Evaluates [val] for a valid number, PS.CURRENT, PS.DEFAULT or undefined
+	// [currentVal] is PS.CURRENT value
+	// [defaultVal] is PS.DEFAULT value
+	// [undefinedVal] is undefined value
+	// Returns floored integer or PS.ERROR
+
+	/*
+	function _isInteger ( valP, currentVal, defaultVal, undefinedVal )
+	{
+		var val, type;
+
+		val = valP; // prevent arg mutation
+
+		if ( val === PS.CURRENT )
+		{
+			val = currentVal;
+		}
+		else if ( val === PS.DEFAULT )
+		{
+			val = defaultVal;
+		}
+		else
+		{
+			type = _typeOf( val );
+			if ( type === "undefined" )
+			{
+				val = undefinedVal;
+			}
+			else if ( type === "number" )
+			{
+				val = Math.floor( val );
+			}
+			else
+			{
+				val = PS.ERROR;
+			}
+		}
+
+		return val;
+	}
+	 */
 
 	// Recursively copy all properties of [src] object into [dest] object
 	// Returns true on success, else PS.ERROR
@@ -1429,10 +1524,11 @@ var PS; // Global namespace for public API
 
 	// Validate & rectify separate color values, return in [colors] object
 
-	function _validColors ( fn, colors, red, green, blue )
+	function _validColors ( fn, colors, redP, greenP, blueP )
 	{
-		var type;
+		var red, green, blue, type;
 
+		red = redP; // prevent arg mutation
 		if ( ( red !== PS.CURRENT ) && ( red !== PS.DEFAULT ) )
 		{
 			type = _typeOf( red );
@@ -1458,6 +1554,7 @@ var PS; // Global namespace for public API
 			}
 		}
 
+		green = greenP; // prevent arg mutation
 		if ( ( green !== PS.CURRENT ) && ( green !== PS.DEFAULT ) )
 		{
 			type = _typeOf( green );
@@ -1483,6 +1580,7 @@ var PS; // Global namespace for public API
 			}
 		}
 
+		blue = blueP; // prevent arg mutation
 		if ( ( blue !== PS.CURRENT ) && ( blue !== PS.DEFAULT ) )
 		{
 			type = _typeOf( blue );
@@ -1518,17 +1616,17 @@ var PS; // Global namespace for public API
 
 	// Extract components of an rgb multiplex into [colors] object
 
-	function _extractRGB ( colors, rgb )
+	function _extractRGB ( colors, rgbP )
 	{
-		var red, rval, green, gval, blue;
+		var rgb, red, rval, green, gval, blue;
 
-		rgb = Math.floor( rgb );
+		rgb = Math.floor( rgbP );
 
-		if ( rgb < 1 ) // handle black
+		if ( rgb < 1 ) // black
 		{
 			rgb = red = green = blue = 0;
 		}
-		else if ( rgb >= 0xFFFFFF ) // handle white
+		else if ( rgb >= 0xFFFFFF ) // white
 		{
 			rgb = 0xFFFFFF;
 			red = green = blue = 255;
@@ -3688,14 +3786,14 @@ var PS; // Global namespace for public API
 			equal : bead.border.equal
 		};
 
-		if ( bead.border.equal )
+		// Fix by Mark Diehr
+
+		if ( !bead.border.equal )
 		{
-			val.width = bead.border.width;
+			bead.border.width = Math.max( val.top, val.left, val.bottom, val.right );
 		}
-		else
-		{
-			val.width = Math.max( val.top, val.left, val.bottom, val.right );
-		}
+
+		val.width = bead.border.width;
 
 		return val;
 	}
@@ -4274,6 +4372,33 @@ var PS; // Global namespace for public API
 
 	function _imageError ( image )
 	{
+		var id, len, i, rec, exec;
+
+		id = image.getAttribute( "data-id" ); // the user function id
+
+		// find the matching image record
+
+		len = _imageList.length;
+		for ( i = 0; i < len; i += 1 )
+		{
+			rec = _imageList[ i ];
+			if ( rec.id === id ) // here it is!
+			{
+				exec = rec.exec;
+				_imageList.splice( i, 1 ); // delete the record
+				break;
+			}
+		}
+
+		try
+		{
+			exec( PS.ERROR ); // call user function with error string
+		}
+		catch ( err )
+		{
+			_errorCatch( "[PS.imageLoad] .exec function failed [" + err.message + "]", err );
+		}
+
 		_error( "[PS.imageLoad] Error loading " + image.src );
 	}
 
@@ -6295,16 +6420,36 @@ var PS; // Global namespace for public API
 
 			// Status line, append to main
 
-			status = document.createElement( "p" ); // "input"
-			if ( !status )
+			if ( _MULTILINE ) // for compatibility; eliminate in 3.1
 			{
-				window.alert( errm );
-				return;
+				status = document.createElement( "p" );
+				if ( !status )
+				{
+					window.alert( errm );
+					return;
+				}
+				status.innerHTML = "Perlenspiel";
 			}
+			else
+			{
+				status = document.createElement( "input" );
+				if ( !status )
+				{
+					window.alert( errm );
+					return;
+				}
+				status.type = "text";
+				status.readonly = "readonly";
+				status.onfocus = function ()
+				{
+					this.blur();
+				};
+				status.tabindex = -1;
+				status.value = "Perlenspiel";
+				status.wrap = "soft";
+			}
+
 			status.id = _STATUS_ID;
-//			status.type = "text";
-//			status.readonly = "readonly";
-			status.innerHTML = "&nbsp;";
 			main.appendChild( status );
 
 			// create grid canvas
@@ -6750,7 +6895,7 @@ var PS; // Global namespace for public API
 
 			if ( PS.init )
 			{
-				// Call unser initializer
+				// Call user initializer
 
 				try
 				{
@@ -6772,7 +6917,7 @@ var PS; // Global namespace for public API
 		// Sets x/y dimensions of grid
 		// Returns object with .width and .height properties, or PS.ERROR
 
-		gridSize : function ( x_p, y_p )
+		gridSize : function ( xP, yP )
 		{
 			var fn, x, y, max;
 
@@ -6785,8 +6930,8 @@ var PS; // Global namespace for public API
 
 			// prevent arg mutation
 
-			x = x_p;
-			y = y_p;
+			x = xP;
+			y = yP;
 
 			max = _defaults.grid.max;
 
@@ -6800,19 +6945,21 @@ var PS; // Global namespace for public API
 			{
 				x = _grid.x;
 			}
-			else if ( _typeOf( x ) !== "number" )
+			else if ( _typeOf( x ) === "number" )
+			{
+				x = Math.floor( x );
+				if ( x < 1 )
+				{
+					x = 1;
+				}
+				else if ( x > max )
+				{
+					x = max;
+				}
+			}
+			else
 			{
 				return _error( fn + "x argument invalid" );
-			}
-
-			x = Math.floor( x );
-			if ( x < 1 )
-			{
-				x = 1;
-			}
-			else if ( x > max )
-			{
-				x = max;
 			}
 
 			// Check y dimension
@@ -6825,19 +6972,21 @@ var PS; // Global namespace for public API
 			{
 				y = _grid.y;
 			}
-			else if ( _typeOf( y ) !== "number" )
+			else if ( _typeOf( y ) === "number" )
+			{
+				y = Math.floor( y );
+				if ( y < 1 )
+				{
+					y = 1;
+				}
+				else if ( y > max )
+				{
+					y = max;
+				}
+			}
+			else
 			{
 				return _error( fn + "y argument invalid" );
-			}
-
-			y = Math.floor( y );
-			if ( y < 1 )
-			{
-				y = 1;
-			}
-			else if ( y > max )
-			{
-				y = max;
 			}
 
 			_gridSize( x, y );
@@ -6849,7 +6998,7 @@ var PS; // Global namespace for public API
 		// Sets current color plane of grid
 		// Returns plane or PS.ERROR on error
 
-		gridPlane : function ( plane_p )
+		gridPlane : function ( planeP )
 		{
 			var fn, plane, type;
 
@@ -6860,22 +7009,22 @@ var PS; // Global namespace for public API
 				return _error( fn + "Too many arguments" );
 			}
 
-			plane = plane_p; // avoid direct mutation of argument
+			plane = planeP; // avoid direct mutation of argument
 
 			type = _typeOf( plane );
 			if ( ( type !== "undefined" ) && ( plane !== PS.CURRENT ) )
 			{
-				if ( type === "number" )
+				if ( plane === PS.DEFAULT )
+				{
+					plane = 0;
+				}
+				else if ( type === "number" )
 				{
 					plane = Math.floor( plane );
 					if ( plane < 1 )
 					{
 						plane = 0;
 					}
-				}
-				else if ( plane === PS.DEFAULT )
-				{
-					plane = 0;
 				}
 				else
 				{
@@ -6917,7 +7066,7 @@ var PS; // Global namespace for public API
 		// Sets fade rate/options of grid
 		// Returns fader settings or PS.ERROR
 
-		gridFade : function ( rate, options_p )
+		gridFade : function ( rate, optionsP )
 		{
 			var fn, fader, options, type, val;
 
@@ -6956,7 +7105,7 @@ var PS; // Global namespace for public API
 				}
 			}
 
-			options = _validFadeOptions( fn, options_p );
+			options = _validFadeOptions( fn, optionsP );
 			if ( options === PS.ERROR )
 			{
 				return PS.ERROR;
@@ -7333,7 +7482,7 @@ var PS; // Global namespace for public API
 
 		visible : function ( x, y, show_p )
 		{
-			var fn, args, show, type;
+			var fn, args, show;
 
 			fn = "[PS.visible] ";
 
@@ -7347,26 +7496,10 @@ var PS; // Global namespace for public API
 				return _error( fn + "Too many arguments" );
 			}
 
-			show = show_p; // prevent arg mutation
-			if ( ( show !== PS.CURRENT ) && ( show !== true ) && ( show !== false ) )
+			show = _isBoolean( show_p, PS.CURRENT, true, PS.CURRENT );
+			if ( show === PS.ERROR )
 			{
-				type = _typeOf( show );
-				if ( type === "undefined" )
-				{
-					show = PS.CURRENT;
-				}
-				else if ( show === PS.DEFAULT )
-				{
-					show = true;
-				}
-				else if ( type === "number" )
-				{
-					show = ( show !== 0 );
-				}
-				else
-				{
-					return _error( fn + "show argument invalid" );
-				}
+				return _error( fn + "show argument invalid" );
 			}
 
 			return _beadExec( fn, _visible, x, y, show );
@@ -7376,7 +7509,7 @@ var PS; // Global namespace for public API
 
 		active : function ( x, y, active_p )
 		{
-			var fn, args, active, type;
+			var fn, args, active;
 
 			fn = "[PS.active] ";
 
@@ -7390,26 +7523,10 @@ var PS; // Global namespace for public API
 				return _error( fn + "Too many arguments" );
 			}
 
-			active = active_p; // prevent arg mutation
-			if ( ( active !== PS.CURRENT ) && ( active !== true ) && ( active !== false ) )
+			active = _isBoolean( active_p, PS.CURRENT, true, PS.CURRENT );
+			if ( active === PS.ERROR )
 			{
-				type = _typeOf( active );
-				if ( type === "undefined" )
-				{
-					active = PS.CURRENT;
-				}
-				else if ( active === PS.DEFAULT )
-				{
-					active = true;
-				}
-				else if ( type === "number" )
-				{
-					active = ( active !== 0 );
-				}
-				else
-				{
-					return _error( fn + "active argument invalid" );
-				}
+				return _error( fn + "active argument invalid" );
 			}
 
 			return _beadExec( fn, _active, x, y, active );
@@ -7971,7 +8088,7 @@ var PS; // Global namespace for public API
 		{
 			var fn, str, type;
 
-			fn = "[PS.StatusText] ";
+			fn = "[PS.statusText] ";
 
 			if ( arguments.length > 1 )
 			{
@@ -7996,11 +8113,18 @@ var PS; // Global namespace for public API
 				}
 
 				_status.text = str;
-				if ( str.length < 1 )
+				if ( _MULTILINE )
 				{
-					str = "&nbsp;";
+					if ( str.length < 1 )
+					{
+						str = "&nbsp;";
+					}
+					_status.div.innerHTML = str;
 				}
-				_status.div.innerHTML = str;
+				else
+				{
+					_status.div.value = str;
+				}
 			}
 
 			return _status.text;
@@ -8753,26 +8877,10 @@ var PS; // Global namespace for public API
 
 			// verify repeat argument
 
-			repeat = repeat_p; // avoid arg mutation
-			if ( ( repeat !== true ) && ( repeat !== false ) )
+			repeat = _isBoolean( repeat_p, _keyRepeat, true, true );
+			if ( repeat === PS.ERROR )
 			{
-				type = _typeOf( repeat );
-				if ( ( type === "undefined") || ( repeat === PS.DEFAULT ) )
-				{
-					repeat = true;
-				}
-				else if ( repeat === PS.CURRENT )
-				{
-					repeat = _keyRepeat;
-				}
-				else if ( type === "number" )
-				{
-					repeat = ( repeat !== 0 );
-				}
-				else
-				{
-					return _error( fn, "repeat argument invalid" );
-				}
+				return _error( fn, "repeat argument invalid" );
 			}
 
 			// Verify init argument
@@ -8836,9 +8944,9 @@ var PS; // Global namespace for public API
 		// IMAGE API
 		// ---------
 
-		imageLoad : function ( filename_p, exec_p, format_p )
+		imageLoad : function ( filenameP, execP, formatP )
 		{
-			var fn, args, filename, exec, format, image, id, type;
+			var fn, args, filename, exec, format, ext, image, id, type;
 
 			fn = "[PS.imageLoad] ";
 
@@ -8854,14 +8962,27 @@ var PS; // Global namespace for public API
 
 			// Prevent arg mutation
 
-			filename = filename_p;
-			exec = exec_p;
-			format = format_p;
+			filename = filenameP;
+			exec = execP;
+			format = formatP;
+
+			// Validate filename
 
 			if ( ( typeof filename !== "string" ) || ( filename.length < 1 ) )
 			{
 				return _error( fn + "filename argument invalid" );
 			}
+
+			// check for a valid file extension
+
+			ext = filename.substr( filename.lastIndexOf( '.' ) + 1 );
+			ext = ext.toLowerCase();
+			if ( ( ext !== "png" ) && ( ext !== "jpg" ) && ( ext !== "jpeg" ) && ( ext !== "bmp" ) )
+			{
+				return _error( fn + "filename extension invalid" );
+			}
+
+			// Validate exec
 
 			if ( typeof exec !== "function" )
 			{
@@ -8918,7 +9039,7 @@ var PS; // Global namespace for public API
 		// Optional [region] specifies region of blit
 		// Return true if any part of image was drawn, false if none of image was drawn, or PS.ERROR
 
-		imageBlit : function ( image_p, xpos_p, ypos_p, region_p )
+		imageBlit : function ( imageP, xposP, yposP, regionP )
 		{
 			var fn, args, xmax, ymax, image, xpos, ypos, region, w, h, format, data, type, top, left, width, height, plane,
 				val, wsize, rowptr, ptr, drawx, drawy, y, x, r, g, b, a, rgb, rval, gval, i, bead, color;
@@ -8940,10 +9061,10 @@ var PS; // Global namespace for public API
 
 			// Prevent arg mutation
 
-			image = image_p;
-			xpos = xpos_p;
-			ypos = ypos_p;
-			region = region_p;
+			image = imageP;
+			xpos = xposP;
+			ypos = yposP;
+			region = regionP;
 
 			if ( _validImage( fn, image ) === PS.ERROR )
 			{
@@ -9261,7 +9382,7 @@ var PS; // Global namespace for public API
 		// Create an image object from the grid
 		// Optional [format] specifies region
 
-		imageCapture : function ( format_p, region_p )
+		imageCapture : function ( formatP, regionP )
 		{
 			var fn, args, format, region, type, w, h, data, top, left, width, height, total, output,
 				right, bottom, id, cnt, x, y, i, bead, color;
@@ -9276,8 +9397,8 @@ var PS; // Global namespace for public API
 
 			// Prevent arg mutation
 
-			format = format_p;
-			region = region_p;
+			format = formatP;
+			region = regionP;
 
 			type = _typeOf( format );
 			if ( ( type === "undefined" ) || ( format === PS.DEFAULT ) )
@@ -9476,7 +9597,7 @@ var PS; // Global namespace for public API
 		// Dump a Javascript text representation of an image to the debugger
 		// Optional [coords] specify region of dump
 
-		imageDump : function ( image_p, region_p, format_p, linelen_p, hex_p )
+		imageDump : function ( imageP, regionP, formatP, linelenP, hexP )
 		{
 			var fn, args, image, region, format, linelen, hex, w, h, psize, data, type, top, left, width, height,
 				total, str, wsize, pcnt, done, a, rowptr, ptr, y, x, r, g, b, rgb, rval, gval;
@@ -9495,11 +9616,10 @@ var PS; // Global namespace for public API
 
 			// Prevent arg mutation
 
-			image = image_p;
-			region = region_p;
-			format = format_p;
-			linelen = linelen_p;
-			hex = hex_p;
+			image = imageP;
+			region = regionP;
+			format = formatP;
+			linelen = linelenP;
 
 			// Validate image
 
@@ -9670,21 +9790,10 @@ var PS; // Global namespace for public API
 
 			// Validate hex
 
-			if ( ( hex !== true ) && ( hex !== false ) )
+			hex = _isBoolean( hexP, PS.ERROR, true, true );
+			if ( hex === PS.ERROR )
 			{
-				type = _typeOf( hex );
-				if ( ( type === "undefined" ) || ( hex === PS.DEFAULT ) )
-				{
-					hex = true;
-				}
-				else if ( type === "number" )
-				{
-					hex = ( hex !== 0 );
-				}
-				else
-				{
-					return _error( fn + "hex argument invalid" );
-				}
+				return _error( fn + "hex argument invalid" );
 			}
 
 			// Init output string
@@ -9797,7 +9906,7 @@ var PS; // Global namespace for public API
 		// PS.spriteSolid( image, region )
 		// Create a solid sprite of specified dimensions
 
-		spriteSolid : function ( width_p, height_p )
+		spriteSolid : function ( widthP, heightP )
 		{
 			var fn, args, width, height, s;
 
@@ -9815,8 +9924,8 @@ var PS; // Global namespace for public API
 
 			// Prevent arg mutation
 
-			width = width_p;
-			height = height_p;
+			width = widthP;
+			height = heightP;
 
 			// Check width
 
@@ -9969,7 +10078,7 @@ var PS; // Global namespace for public API
 		// PS.spriteSolidAlpha ( sprite, alpha )
 		// Sets alpha of a solid sprite
 
-		spriteSolidAlpha : function ( sprite_p, alpha_p )
+		spriteSolidAlpha : function ( spriteP, alphaP )
 		{
 			var fn, args, sprite, alpha, s, current, type;
 
@@ -9987,8 +10096,8 @@ var PS; // Global namespace for public API
 
 			// Prevent arg mutation
 
-			sprite = sprite_p;
-			alpha = alpha_p;
+			sprite = spriteP;
+			alpha = alphaP;
 
 			s = _getSprite( sprite, fn );
 			if ( s === PS.ERROR )
@@ -10264,9 +10373,9 @@ var PS; // Global namespace for public API
 		// PS.spriteShow( sprite, show )
 		// Toggles visibility of a sprite
 
-		spriteShow : function ( sprite_p, show_p )
+		spriteShow : function ( spriteP, showP )
 		{
-			var fn, args, sprite, show, s, type;
+			var fn, args, sprite, show, s;
 
 			fn = "[PS.spriteShow] ";
 
@@ -10282,9 +10391,7 @@ var PS; // Global namespace for public API
 
 			// Prevent arg mutation
 
-			sprite = sprite_p;
-			show = show_p;
-
+			sprite = spriteP;
 			s = _getSprite( sprite, fn );
 			if ( s === PS.ERROR )
 			{
@@ -10293,27 +10400,16 @@ var PS; // Global namespace for public API
 
 			// Validate show
 
-			type = _typeOf( show );
-			if ( ( type !== "undefined" ) && ( show !== PS.CURRENT ) )
+			show = _isBoolean( showP, PS.CURRENT, true, PS.CURRENT );
+			if ( show === PS.ERROR )
 			{
-				if ( ( show !== true ) && ( show !== false ) )
-				{
-					if ( show === PS.DEFAULT )
-					{
-						show = true;
-					}
-					else if ( type === "number" )
-					{
-						show = ( show !== 0 );
-					}
-					else
-					{
-						return _error( fn + "show argument invalid" );
-					}
-				}
+				return _error( fn + "show argument invalid" );
+			}
 
-				// Only change if needed
+			// Only change if needed
 
+			if ( show !== PS.CURRENT )
+			{
 				if ( s.visible !== show )
 				{
 					s.visible = show;
@@ -10338,7 +10434,7 @@ var PS; // Global namespace for public API
 		// PS.spriteAxis( sprite, x, y )
 		// Sets/inspects positional axis of sprite
 
-		spriteAxis : function ( sprite_p, x_p, y_p )
+		spriteAxis : function ( spriteP, xP, yP )
 		{
 			var fn, args, sprite, x, y, s, type;
 
@@ -10356,9 +10452,9 @@ var PS; // Global namespace for public API
 
 			// Prevent arg mutation
 
-			sprite = sprite_p;
-			x = x_p;
-			y = y_p;
+			sprite = spriteP;
+			x = xP;
+			y = yP;
 
 			s = _getSprite( sprite, fn );
 			if ( s === PS.ERROR )
@@ -10427,7 +10523,7 @@ var PS; // Global namespace for public API
 		// PS.spritePlane( sprite, plane )
 		// Sets/inspects sprite plane
 
-		spritePlane : function ( sprite_p, plane_p )
+		spritePlane : function ( spriteP, planeP )
 		{
 			var fn, args, sprite, plane, s, type;
 
@@ -10445,8 +10541,8 @@ var PS; // Global namespace for public API
 
 			// Prevent arg mutation
 
-			sprite = sprite_p;
-			plane = plane_p;
+			sprite = spriteP;
+			plane = planeP;
 
 			s = _getSprite( sprite, fn );
 			if ( s === PS.ERROR )
@@ -10512,7 +10608,7 @@ var PS; // Global namespace for public API
 		// Erases sprite at previous location (if any)
 		// Redraws at x/y
 
-		spriteMove : function ( sprite_p, x_p, y_p )
+		spriteMove : function ( spriteP, xP, yP )
 		{
 			var fn, args, sprite, x, y, s, type, h_left, h_top, h_width, h_height, v_left, v_top, v_width, v_height;
 
@@ -10530,9 +10626,9 @@ var PS; // Global namespace for public API
 
 			// Prevent arg mutation
 
-			sprite = sprite_p;
-			x = x_p;
-			y = y_p;
+			sprite = spriteP;
+			x = xP;
+			y = yP;
 
 			s = _getSprite( sprite, fn );
 			if ( s === PS.ERROR )
@@ -10693,7 +10789,7 @@ var PS; // Global namespace for public API
 		// PS.spriteCollide( sprite, exec )
 		// Sets/inspects collision function
 
-		spriteCollide : function ( sprite, exec_p )
+		spriteCollide : function ( sprite, execP )
 		{
 			var fn, args, s, exec, type;
 
@@ -10715,7 +10811,7 @@ var PS; // Global namespace for public API
 				return PS.ERROR;
 			}
 
-			exec = exec_p; // avoid arg mutation
+			exec = execP; // avoid arg mutation
 			type = _typeOf( exec );
 			if ( ( type !== "undefined" ) && ( exec !== PS.CURRENT ) )
 			{
@@ -11699,9 +11795,9 @@ var PS; // Global namespace for public API
 			ct = new Date().getTime();
 			ttc = Math.max( 0, 16 - ( ct - lt ) );
 			id = window.setTimeout( function ()
-			{
-				cb( ct + ttc );
-			}, ttc );
+			                        {
+				                        cb( ct + ttc );
+			                        }, ttc );
 			lt = ct + ttc;
 			return id;
 		};
