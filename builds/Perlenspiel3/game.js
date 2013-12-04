@@ -1,41 +1,35 @@
-// game.js for Perlenspiel 3.0
-
-/*
-Perlenspiel is a scheme by Professor Moriarty (bmoriarty@wpi.edu).
-Perlenspiel is Copyright © 2009-13 Worcester Polytechnic Institute.
-This file is part of Perlenspiel.
-
-Perlenspiel is free software: you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published
-by the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Perlenspiel is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU Lesser General Public License for more details.
-
-You may have received a copy of the GNU Lesser General Public License
-along with Perlenspiel. If not, see <http://www.gnu.org/licenses/>.
+/* game.js for Perlenspiel 3.0.8
+Modifications by Mark Diehr: mdiehr@fullsail.com */
+/* Please fill out these comments with the appropriate information.
+    Project Title:  
+           Author:  
+             Date:  
 */
 
-// The following comment lines are for JSLint. Don't remove them!
+/* Project notes:
+    You can include project notes, messages, instructions, and TODOs here if you wish.
+    
+*/
 
-/*jslint nomen: true, white: true */
-/*global PS */
+/* Perlenspiel is a scheme by Professor Moriarty (bmoriarty@wpi.edu).
+Perlenspiel is Copyright © 2009-13 Worcester Polytechnic Institute.
+This file is part of Perlenspiel. */
+
+/* Put your global variables after this line. */
+
+
+/* Put your function definitions after this line. */
+
 
 // This is a template for creating new Perlenspiel games
-
 // All of the functions below MUST exist, or the engine will complain!
-
 // PS.init( system, options )
 // Initializes the game
 // This function should normally begin with a call to PS.gridSize( x, y )
 // where x and y are the desired initial dimensions of the grid
 // [system] = an object containing engine and platform information; see documentation for details
 // [options] = an object with optional parameters; see documentation for details
-
-PS.init = function( system, options ) {
+PS.init = function (system, options) {
 	"use strict";
 
 	// Use PS.gridSize( x, y ) to set the grid to
@@ -43,9 +37,10 @@ PS.init = function( system, options ) {
 	// Do this FIRST to avoid problems!
 	// Otherwise you will get the default 8x8 grid
 
-	PS.gridSize( 8, 8 ); // replace with your own x/y values
+	PS.gridSize(8, 8); // replace with your own x/y values
 
 	// Add any other initialization code you need here
+
 };
 
 // PS.touch ( x, y, data, options )
@@ -56,7 +51,7 @@ PS.init = function( system, options ) {
 // [data] = the data value associated with this bead, 0 if none has been set
 // [options] = an object with optional parameters; see documentation for details
 
-PS.touch = function( x, y, data, options ) {
+PS.touch = function (x, y, data, options) {
 	"use strict";
 
 	// Uncomment the following line to inspect parameters
@@ -73,7 +68,7 @@ PS.touch = function( x, y, data, options ) {
 // [data] = the data value associated with this bead, 0 if none has been set
 // [options] = an object with optional parameters; see documentation for details
 
-PS.release = function( x, y, data, options ) {
+PS.release = function (x, y, data, options) {
 	"use strict";
 
 	// Uncomment the following line to inspect parameters
@@ -90,7 +85,7 @@ PS.release = function( x, y, data, options ) {
 // [data] = the data value associated with this bead, 0 if none has been set
 // [options] = an object with optional parameters; see documentation for details
 
-PS.enter = function( x, y, data, options ) {
+PS.enter = function (x, y, data, options) {
 	"use strict";
 
 	// Uncomment the following line to inspect parameters
@@ -107,7 +102,7 @@ PS.enter = function( x, y, data, options ) {
 // [data] = the data value associated with this bead, 0 if none has been set
 // [options] = an object with optional parameters; see documentation for details
 
-PS.exit = function( x, y, data, options ) {
+PS.exit = function (x, y, data, options) {
 	"use strict";
 
 	// Uncomment the following line to inspect parameters
@@ -121,7 +116,7 @@ PS.exit = function( x, y, data, options ) {
 // It doesn't have to do anything
 // [options] = an object with optional parameters; see documentation for details
 
-PS.exitGrid = function( options ) {
+PS.exitGrid = function (options) {
 	"use strict";
 
 	// Uncomment the following line to verify operation
@@ -140,7 +135,7 @@ PS.exitGrid = function( options ) {
 // [ctrl] = true if control key is held down, else false
 // [options] = an object with optional parameters; see documentation for details
 
-PS.keyDown = function( key, shift, ctrl, options ) {
+PS.keyDown = function (key, shift, ctrl, options) {
 	"use strict";
 
 	// Uncomment the following line to inspect parameters
@@ -159,7 +154,7 @@ PS.keyDown = function( key, shift, ctrl, options ) {
 // [ctrl] = true if control key is held down, false otherwise
 // [options] = an object with optional parameters; see documentation for details
 
-PS.keyUp = function( key, shift, ctrl, options ) {
+PS.keyUp = function (key, shift, ctrl, options) {
 	"use strict";
 
 	// Uncomment the following line to inspect parameters
@@ -174,7 +169,7 @@ PS.keyUp = function( key, shift, ctrl, options ) {
 // [sensors] = an object with sensor information; see documentation for details
 // [options] = an object with optional parameters; see documentation for details
 
-PS.input = function( sensors, options ) {
+PS.input = function (sensors, options) {
 	"use strict";
 
 	// Uncomment the following block to inspect parameters
@@ -183,10 +178,9 @@ PS.input = function( sensors, options ) {
 	var device = sensors.wheel; // check for scroll wheel
 	if ( device )
 	{
-		PS.debug( "sensors.wheel = " + device + "\n" );
+	    PS.debug( "sensors.wheel = " + device + "\n" );
 	}
 	*/
-	
+
 	// Add code here for when an input event is detected
 };
-
